@@ -12,16 +12,23 @@ const io = new Server(httpServer, { cors: URL });
 
 io.on("connection", (socket) => {
   console.log("server connected")
-  socket.on("beginPath",(arg)=>{
-    socket.broadcast.emit("beginPath", arg)
+
+  socket.on("join-room", (roomId) => {
+    socket.join(roomId);
+    console.log(`Socket ${socket.id} joined room ${roomId}`);
+  });
+
+  socket.on("beginPath",(data)=>{
+    console.log(`beginPath received from ${socket.id} for room ${data.roomId}`, data);
+    socket.to(data.roomId).emit("beginPath", data)
   })
 
-  socket.on("drawLine",(arg)=>{
-    socket.broadcast.emit("drawLine", arg)
+  socket.on("drawLine",(data)=>{
+    socket.to(data.roomId).emit("drawLine", data)
   })
 
-  socket.on("changeConfig",(arg)=>{
-    socket.broadcast.emit("changeConfig", arg)
+  socket.on("changeConfig",(data)=>{
+    socket.to(data.roomId).emit("changeConfig", data)
   })
 });
 
